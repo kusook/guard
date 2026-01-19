@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="ru" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GUARD - Security System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .gradient-bg {
+      background: #000000;
+      position: relative;
+    }
+    
+    .gradient-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, 
+        rgba(99, 102, 241, 0.25) 0%,
+        rgba(139, 92, 246, 0.25) 25%,
+        rgba(168, 85, 247, 0.25) 50%,
+        rgba(124, 58, 237, 0.25) 75%,
+        rgba(99, 102, 241, 0.25) 100%);
+      background-size: 400% 400%;
+      animation: gradient-flow 8s ease infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes gradient-flow {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+    
+    .vercel-button {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .vercel-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.03), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    
+    .vercel-button:hover::before {
+      transform: translateX(100%);
+    }
+    
+    .vercel-button:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .vercel-button:active {
+      transform: translateY(0);
+    }
+    
+    .primary-button {
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #ffffff;
+    }
+    
+    .primary-button:hover {
+      background: #fafafa;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+    }
+    
+    .secondary-button {
+      background: transparent;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .secondary-button:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    @keyframes float-subtle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    
+    .float-logo {
+      animation: float-subtle 4s ease-in-out infinite;
+    }
+    
+    .text-gradient {
+      background: linear-gradient(to right, #ffffff, #a3a3a3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .grid-pattern {
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    
+    .notification {
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(220, 38, 38, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      border-radius: 12px;
+      padding: 16px 24px;
+      color: #ffffff;
+      font-weight: 500;
+      box-shadow: 0 10px 40px rgba(220, 38, 38, 0.4);
+      z-index: 1000;
+      min-width: 300px;
+      animation: slideDown 0.5s ease forwards, slideUp 0.5s ease 4.5s forwards;
+    }
+    
+    @keyframes slideDown {
+      to {
+        top: 24px;
+      }
+    }
+    
+    @keyframes slideUp {
+      to {
+        top: -100px;
+      }
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal-content {
+      background: #0a0a0a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80%;
+      overflow-y: auto;
+      animation: slideUpModal 0.3s ease;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    
+    @keyframes slideUpModal {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .log-entry {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-left: 3px solid rgba(220, 38, 38, 0.6);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+    
+    .log-entry:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-left-color: rgba(220, 38, 38, 0.9);
+    }
+    
+    .stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full m-0 p-0">
+  <div class="gradient-bg grid-pattern min-h-full h-full w-full flex flex-col items-center justify-center p-8 relative overflow-auto"><!-- ����екоративные линии -->
+   <div class="glow-line top-1/4 left-0 right-0" style="animation-delay: 0s;"></div>
+   <div class="glow-line top-2/3 left-0 right-0" style="animation-delay: 1.5s;"></div><!-- Основной контейнер -->
+   <main class="relative flex flex-col items-center max-w-2xl w-full"><!-- Логоти�� GUARD -->
+    <div class="float-logo mb-12 relative">
+     <svg viewbox="0 0 80 80" class="w-20 h-20" style="filter: drop-shadow(0 4px 16px rgba(255,255,255,0.1));"><defs>
+       <lineargradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#a3a3a3;stop-opacity:1" />
+       </lineargradient>
+      </defs> <!-- Щит --> <path d="M 40 8 
+                   C 38 8 28 10 18 15
+                   L 16 16
+                   C 16 32 16 42 18 50
+                   C 22 62 34 72 40 76
+                   C 46 72 58 62 62 50
+                   C 64 42 64 32 64 16
+                   L 62 15
+                   C 52 10 42 8 40 8 Z" fill="url(#shieldGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="1" /> <!-- Внутренний контур --> <path d="M 40 16
+                   C 38 16 30 17.5 24 21
+                   C 24 33 24.5 40 26 46
+                   C 29 55 37 63 40 66
+                   C 43 63 51 55 54 46
+                   C 55.5 40 56 33 56 21
+                   C 50 17.5 42 16 40 16 Z" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1" /> <!-- Буква G --> <text x="40" y="52" font-family="Inter" font-size="28" font-weight="700" fill="#000000" text-anchor="middle" opacity="0.9">
+       G
+      </text> <!-- Точки декор --> <circle cx="40" cy="12" r="1.5" fill="rgba(255,255,255,0.6)" /> <circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.4)" /> <circle cx="60" cy="20" r="1" fill="rgba(255,255,255,0.4)" />
+     </svg>
+    </div><!-- Заголовок -->
+    <div class="mb-16 text-center">
+     <h1 id="app-title" class="text-6xl font-bold text-white mb-3 tracking-tight" style="letter-spacing: -0.02em;">GUARD</h1>
+    </div><!-- Кнопки -->
+    <nav class="flex flex-col gap-3 w-full max-w-md"><!-- Кнопка Старт (Primary) --> <button id="start-btn" class="vercel-button primary-button px-6 py-4 rounded-lg font-medium text-base transition-all"> <span id="start-text" class="relative z-10">Старт</span> </button> <!-- Кнопка Ст��тистика --> <button id="stats-btn" class="vercel-button secondary-button px-6 py-4 rounded-lg font-medium text-base transition-all"> <span id="stats-text" class="relative z-10 flex items-center justify-center gap-2">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+       </svg> Показать статистику </span> </button> <!-- Кнопка Логи --> <button id="logs-btn" class="vercel-button secondary-button px-6 py-4 rounded-lg font-medium text-base transition-all"> <span id="logs-text" class="relative z-10 flex items-center justify-center gap-2">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+       </svg> Показать логи </span> </button>
+    </nav>
+   </main><!-- Футер -->
+   <footer class="absolute bottom-8 left-0 right-0 text-center">
+    <p id="author-text" class="text-sm text-neutral-500 font-medium tracking-wide">Разработал Халиуллин Амир</p>
+   </footer>
+  </div>
+  <script>
+    const defaultConfig = {
+      app_title: 'GUARD',
+      start_button: 'Старт',
+      stop_button: 'Стоп',
+      stats_button: 'Показать статистику',
+      logs_button: 'Показать логи',
+      author_text: 'by Security Team',
+      background_color: '#000000',
+      surface_color: '#ffffff',
+      text_color: '#ffffff',
+      primary_action: '#ffffff',
+      secondary_action: '#171717'
+    };
+    
+    let isRunning = false;
+    let totalPackets = 0;
+    let totalThreats = 0;
+    let lastThreat = null;
+    let attackLogs = [];
+    
+    async function onConfigChange(config) {
+      const appTitle = document.getElementById('app-title');
+      const startText = document.getElementById('start-text');
+      const statsText = document.getElementById('stats-text');
+      const logsText = document.getElementById('logs-text');
+      const authorText = document.getElementById('author-text');
+      
+      if (appTitle) appTitle.textContent = config.app_title || defaultConfig.app_title;
+      
+      if (startText) {
+        startText.textContent = isRunning ? 
+          (config.stop_button || defaultConfig.stop_button) : 
+          (config.start_button || defaultConfig.start_button);
+      }
+      
+      if (statsText) {
+        const icon = statsText.querySelector('svg');
+        statsText.textContent = config.stats_button || defaultConfig.stats_button;
+        if (icon) statsText.insertBefore(icon, statsText.firstChild);
+      }
+      
+      if (logsText) {
+        const icon = logsText.querySelector('svg');
+        logsText.textContent = config.logs_button || defaultConfig.logs_button;
+        if (icon) logsText.insertBefore(icon, logsText.firstChild);
+      }
+      
+      if (authorText) authorText.textContent = config.author_text || defaultConfig.author_text;
+      
+      const bgColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryAction = config.primary_action || defaultConfig.primary_action;
+      const secondaryAction = config.secondary_action || defaultConfig.secondary_action;
+      
+      document.querySelector('.gradient-bg').style.background = `linear-gradient(to bottom, ${bgColor} 0%, ${secondaryAction} 100%)`;
+      
+      if (appTitle) appTitle.style.color = textColor;
+      if (authorText) authorText.style.color = textColor;
+      
+      const startBtn = document.getElementById('start-btn');
+      if (startBtn) {
+        startBtn.style.backgroundColor = primaryAction;
+        startBtn.style.borderColor = primaryAction;
+        startBtn.style.color = bgColor;
+      }
+      
+      const statsBtn = document.getElementById('stats-btn');
+      if (statsBtn) {
+        statsBtn.style.color = surfaceColor;
+        statsBtn.style.borderColor = `${surfaceColor}33`;
+      }
+      
+      const logsBtn = document.getElementById('logs-btn');
+      if (logsBtn) {
+        logsBtn.style.color = surfaceColor;
+        logsBtn.style.borderColor = `${surfaceColor}33`;
+      }
+    }
+    
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              config.surface_color = value;
+              window.elementSdk.setConfig({ surface_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.primary_action || defaultConfig.primary_action,
+            set: (value) => {
+              config.primary_action = value;
+              window.elementSdk.setConfig({ primary_action: value });
+            }
+          },
+          {
+            get: () => config.secondary_action || defaultConfig.secondary_action,
+            set: (value) => {
+              config.secondary_action = value;
+              window.elementSdk.setConfig({ secondary_action: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+    
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['app_title', config.app_title || defaultConfig.app_title],
+        ['start_button', config.start_button || defaultConfig.start_button],
+        ['stop_button', config.stop_button || defaultConfig.stop_button],
+        ['stats_button', config.stats_button || defaultConfig.stats_button],
+        ['logs_button', config.logs_button || defaultConfig.logs_button],
+        ['author_text', config.author_text || defaultConfig.author_text]
+      ]);
+    }
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+    
+    // Функция показа уведомления об атаке
+    function showNotification(attackType, ip) {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <svg style="width: 20px; height: 20px; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <div>
+            <div style="font-weight: 700; margin-bottom: 4px;">⚠️ Обнаружена атака</div>
+            <div style="font-size: 14px; opacity: 0.9;">${attackType} от ${ip}</div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+    
+    // Функция показа модального окна статистики
+    function showStatsModal() {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      
+      const lastThreatHTML = lastThreat ? `
+        <div class="stat-card">
+          <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 8px;">Последняя угроза</div>
+          <div style="font-size: 20px; font-weight: 600; color: #dc2626; margin-bottom: 4px;">${lastThreat.type}</div>
+          <div style="font-size: 14px; color: #d4d4d4;">IP: ${lastThreat.ip}</div>
+          <div style="font-size: 12px; color: #737373; margin-top: 4px;">${lastThreat.time}</div>
+        </div>
+      ` : '';
+      
+      overlay.innerHTML = `
+        <div class="modal-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 style="font-size: 24px; font-weight: 700; color: #ffffff; margin: 0;">📊 Статистика</h2>
+            <button onclick="this.closest('.modal-overlay').remove()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="stat-card">
+            <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 8px;">Всего пакетов</div>
+            <div style="font-size: 32px; font-weight: 700; color: #ffffff;">${totalPackets.toLocaleString()}</div>
+          </div>
+          
+          <div class="stat-card">
+            <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 8px;">Количество угроз</div>
+            <div style="font-size: 32px; font-weight: 700; color: #dc2626;">${totalThreats.toLocaleString()}</div>
+          </div>
+          
+          ${lastThreatHTML}
+        </div>
+      `;
+      
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+        }
+      });
+      
+      document.body.appendChild(overlay);
+    }
+    
+    // Функция показа модального окна логов
+    function showLogsModal() {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      
+      const logsHTML = attackLogs.length > 0 ? 
+        attackLogs.map(log => `
+          <div class="log-entry">
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <div style="font-size: 14px; font-weight: 600; color: #dc2626; margin-bottom: 4px;">${log.type}</div>
+                <div style="font-size: 13px; color: #d4d4d4;">IP: ${log.ip}</div>
+              </div>
+              <div style="font-size: 12px; color: #737373; white-space: nowrap;">${log.time}</div>
+            </div>
+          </div>
+        `).join('') 
+        : `<div style="text-align: center; padding: 40px 20px; color: #737373;">
+             <svg style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+             </svg>
+             <p>Логи отсутствуют</p>
+           </div>`;
+      
+      overlay.innerHTML = `
+        <div class="modal-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 style="font-size: 24px; font-weight: 700; color: #ffffff; margin: 0;">📋 Логи атак</h2>
+            <button onclick="this.closest('.modal-overlay').remove()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div style="max-height: 400px; overflow-y: auto;">
+            ${logsHTML}
+          </div>
+        </div>
+      `;
+      
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+        }
+      });
+      
+      document.body.appendChild(overlay);
+    }
+    
+    // Обработчики кнопок
+    document.getElementById('start-btn').addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      const url = isRunning ? "/api/stop" : "/api/start";
+      await fetch(url, { method: "POST" });
+      
+      if (!isRunning) {
+        const res = await fetch("/api/stats");
+        const data = await res.json();
+
+        lastSeenThreatTime = data.last_threat
+          ? data.last_threat.time
+          : null;
+      }      
+      
+      isRunning = !isRunning;
+
+      const startText = document.getElementById('start-text');
+      const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+
+      startText.textContent = isRunning
+        ? (config.stop_button || defaultConfig.stop_button)
+        : (config.start_button || defaultConfig.start_button);
+        
+      if (isRunning) {
+        this.style.backgroundColor = '#dc2626';
+        this.style.borderColor = '#dc2626';
+      } else {
+        this.style.backgroundColor = '#ffffff';
+        this.style.borderColor = '#ffffff';
+      }
+    });
+
+    document.getElementById('stats-btn').addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      const res = await fetch("/api/stats");
+      const data = await res.json();
+
+      totalPackets = data.total_packets;
+      totalThreats = data.total_threats;
+ //     lastThreat = data.last_threat
+ //       ? {
+ //           type: data.last_threat.type,
+ //           ip: data.last_threat.ip,
+ //           time: data.last_threat.time
+ //         }
+ //       : null;
+ 
+      if (data.total_threats > 0 && data.last_threat) {
+        lastThreat = {
+          type: data.last_threat.type,
+          ip: data.last_threat.ip,
+          time: data.last_threat.time
+        };
+      } else {
+        lastThreat = null;
+      }
+      
+      showStatsModal();
+    });
+    
+    document.getElementById('logs-btn').addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      const res = await fetch("/api/logs");
+      attackLogs = await res.json();
+
+      showLogsModal();
+    });
+
+    async function pollStats() {
+      if (!isRunning) return;
+
+      try {
+        const res = await fetch("/api/stats");
+        const data = await res.json();
+
+        totalPackets = data.total_packets;
+        totalThreats = data.total_threats;
+
+        if (data.last_threat) {
+          const threat = data.last_threat;
+
+          if (threat.time !== lastSeenThreatTime) {
+            lastSeenThreatTime = threat.time;
+            showNotification(threat.type, threat.ip);
+          }
+        }
+      } catch (e) {
+        console.error("pollStats error", e);
+      }
+    }
+
+    // опрос раз в 1 секунду
+    setInterval(pollStats, 1000);
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bf5e61865ac9bb8',t:'MTc2ODY1MzM5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
